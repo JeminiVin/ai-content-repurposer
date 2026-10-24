@@ -1,15 +1,7 @@
 import { use } from "react";
 import Link from "next/link";
 import { Sparkles, ArrowLeft } from "lucide-react";
-
-// 1. Define static params so Vercel can prerender the dynamic SEO pages
-export async function generateStaticParams() {
-  return [
-    { slug: "linkedin-to-twitter" },
-    { slug: "blog-to-reels" },
-    { slug: "article-to-threads" },
-  ];
-}
+import { Metadata } from "next";
 
 const seoPagesData: Record<string, { title: string; desc: string; content: string }> = {
   "linkedin-to-twitter": {
@@ -29,12 +21,35 @@ const seoPagesData: Record<string, { title: string; desc: string; content: strin
   },
 };
 
+// 1. Define static params so Vercel can prerender the dynamic SEO pages
+export async function generateStaticParams() {
+  return [
+    { slug: "linkedin-to-twitter" },
+    { slug: "blog-to-reels" },
+    { slug: "article-to-threads" },
+  ];
+}
+
+// 2. Add Dynamic Metadata for SEO Ranking
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const pageData = seoPagesData[resolvedParams.slug] || {
+    title: "Content Repurposing Tool",
+    desc: "Repurpose your content effortlessly with AI.",
+  };
+
+  return {
+    title: `${pageData.title} | RepurposeAI`,
+    description: pageData.desc,
+  };
+}
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 export default function SeoRepurposePage({ params }: PageProps) {
-  // 2. Properly resolve params using React.use() for Next.js App Router
+  // 3. Properly resolve params using React.use() for Next.js App Router
   const resolvedParams = use(params);
   const pageData = seoPagesData[resolvedParams.slug] || {
     title: "Content Repurposing Tool",
